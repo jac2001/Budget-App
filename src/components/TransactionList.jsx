@@ -18,7 +18,7 @@ function formatMonthLabel(key) {
   return new Date(year, month - 1).toLocaleString('default', { month: 'long', year: 'numeric' })
 }
 
-export default function TransactionList({ transactions, onUpdateCategory, onDeleteTransaction }) {
+export default function TransactionList({ transactions, onUpdateCategory, onDeleteTransaction, onToggleWorkExpense }) {
   const [search, setSearch] = useState('')
   const [filterCat, setFilterCat] = useState('All')
   const [filterSource, setFilterSource] = useState('All')
@@ -115,6 +115,7 @@ export default function TransactionList({ transactions, onUpdateCategory, onDele
               <th onClick={() => toggleSort('amount')} className="sortable">
                 Amount {sortField === 'amount' ? (sortDir === 'asc' ? '↑' : '↓') : ''}
               </th>
+              <th title="Work Expense">💼</th>
               <th></th>
             </tr>
           </thead>
@@ -135,6 +136,15 @@ export default function TransactionList({ transactions, onUpdateCategory, onDele
                 <td><span className="source-chip">{t.source}</span></td>
                 <td className={`amount-cell ${t.amount >= 0 ? 'positive' : 'negative'}`}>
                   {t.amount >= 0 ? '+' : ''}${Math.abs(t.amount).toFixed(2)}
+                </td>
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={!!t.workExpense}
+                    onChange={() => onToggleWorkExpense(t.id)}
+                    title="Mark as work expense"
+                    className="work-checkbox"
+                  />
                 </td>
                 <td>
                   <button className="delete-btn" onClick={() => onDeleteTransaction(t.id)} title="Delete">×</button>

@@ -212,6 +212,24 @@ body {
 }
 .delete-btn:hover { background: #fee2e2; color: #dc2626; }
 
+.work-checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #6366f1;
+}
+
+.status-select {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background: white;
+  cursor: pointer;
+}
+.status-select:focus { outline: none; border-color: #6366f1; }
+
 /* Dashboard */
 .dashboard { display: flex; flex-direction: column; gap: 0; }
 

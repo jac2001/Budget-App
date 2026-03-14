@@ -25,7 +25,7 @@ export default function Dashboard({ transactions, budgets }) {
   const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
 
   const currentMonthTxns = useMemo(() =>
-    transactions.filter(t => getMonthKey(t.date) === currentMonthKey && t.amount < 0),
+    transactions.filter(t => getMonthKey(t.date) === currentMonthKey && t.amount < 0 && !t.workExpense),
     [transactions, currentMonthKey]
   )
 
@@ -53,7 +53,7 @@ export default function Dashboard({ transactions, budgets }) {
     }
     return keys.map(key => {
       const spend = transactions
-        .filter(t => getMonthKey(t.date) === key && t.amount < 0)
+        .filter(t => getMonthKey(t.date) === key && t.amount < 0 && !t.workExpense)
         .reduce((s, t) => s + Math.abs(t.amount), 0)
       const income = transactions
         .filter(t => getMonthKey(t.date) === key && t.category === 'Income')

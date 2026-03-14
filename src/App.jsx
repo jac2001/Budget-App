@@ -3,11 +3,12 @@ import FileUpload from './components/FileUpload'
 import TransactionList from './components/TransactionList'
 import Dashboard from './components/Dashboard'
 import BudgetManager from './components/BudgetManager'
+import WorkExpenses from './components/WorkExpenses'
 import { loadTransactions, saveTransactions, loadBudgets, saveBudgets, clearAll } from './utils/storage'
 import { guessCategory, mapBankCategory } from './utils/csvParser'
 import './App.css'
 
-const TABS = ['Dashboard', 'Transactions', 'Budgets', 'Import']
+const TABS = ['Dashboard', 'Transactions', 'Work Expenses', 'Budgets', 'Import']
 
 export default function App() {
   const [transactions, setTransactions] = useState(() => loadTransactions())
@@ -37,6 +38,22 @@ export default function App() {
   const handleDeleteTransaction = useCallback((id) => {
     setTransactions(prev => {
       const updated = prev.filter(t => t.id !== id)
+      saveTransactions(updated)
+      return updated
+    })
+  }, [])
+
+  const handleToggleWorkExpense = useCallback((id) => {
+    setTransactions(prev => {
+      const updated = prev.map(t => t.id === id ? { ...t, workExpense: !t.workExpense, reimbursementStatus: t.reimbursementStatus || 'pending' } : t)
+      saveTransactions(updated)
+      return updated
+    })
+  }, [])
+
+  const handleUpdateReimbursementStatus = useCallback((id, status) => {
+    setTransactions(prev => {
+      const updated = prev.map(t => t.id === id ? { ...t, reimbursementStatus: status } : t)
       saveTransactions(updated)
       return updated
     })
@@ -103,6 +120,13 @@ export default function App() {
             transactions={transactions}
             onUpdateCategory={handleUpdateCategory}
             onDeleteTransaction={handleDeleteTransaction}
+            onToggleWorkExpense={handleToggleWorkExpense}
+          />
+        )}
+        {tab === 'Work Expenses' && (
+          <WorkExpenses
+            transactions={transactions}
+            onUpdateStatus={handleUpdateReimbursementStatus}
           />
         )}
         {tab === 'Budgets' && <BudgetManager budgets={budgets} onSaveBudget={handleSaveBudget} />}
