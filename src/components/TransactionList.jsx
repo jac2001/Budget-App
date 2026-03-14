@@ -23,6 +23,7 @@ export default function TransactionList({ transactions, onUpdateCategory, onDele
   const [filterCat, setFilterCat] = useState('All')
   const [filterSource, setFilterSource] = useState('All')
   const [filterMonth, setFilterMonth] = useState('All')
+  const [filterWork, setFilterWork] = useState('all')
   const [sortField, setSortField] = useState('date')
   const [sortDir, setSortDir] = useState('desc')
 
@@ -36,6 +37,8 @@ export default function TransactionList({ transactions, onUpdateCategory, onDele
     if (filterCat !== 'All') list = list.filter(t => t.category === filterCat)
     if (filterSource !== 'All') list = list.filter(t => t.source === filterSource)
     if (filterMonth !== 'All') list = list.filter(t => (t.date || '').startsWith(filterMonth))
+    if (filterWork === 'yes') list = list.filter(t => t.workExpense)
+    if (filterWork === 'no') list = list.filter(t => !t.workExpense)
     list.sort((a, b) => {
       let av = a[sortField], bv = b[sortField]
       if (sortField === 'amount') { av = Math.abs(av); bv = Math.abs(bv) }
@@ -91,6 +94,11 @@ export default function TransactionList({ transactions, onUpdateCategory, onDele
         </select>
         <select value={filterSource} onChange={e => setFilterSource(e.target.value)} className="filter-select">
           {sources.map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
+        <select value={filterWork} onChange={e => setFilterWork(e.target.value)} className="filter-select">
+          <option value="all">All Expenses</option>
+          <option value="yes">💼 Work Only</option>
+          <option value="no">Personal Only</option>
         </select>
       </div>
 

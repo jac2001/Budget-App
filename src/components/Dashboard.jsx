@@ -82,6 +82,21 @@ export default function Dashboard({ transactions, budgets }) {
     })
   }, [transactions])
 
+  // Top merchants
+  const topMerchants = useMemo(() => {
+    const map = {}
+    for (const t of currentMonthTxns) {
+      const name = t.description || 'Unknown'
+      if (!map[name]) map[name] = { amount: 0, count: 0 }
+      map[name].amount += Math.abs(t.amount)
+      map[name].count += 1
+    }
+    return Object.entries(map)
+      .map(([name, { amount, count }]) => ({ name, amount: parseFloat(amount.toFixed(2)), count }))
+      .sort((a, b) => b.amount - a.amount)
+      .slice(0, 10)
+  }, [currentMonthTxns])
+
   // Budget progress
   const budgetProgress = useMemo(() => {
     return Object.entries(budgets).map(([cat, limit]) => {
@@ -163,6 +178,32 @@ export default function Dashboard({ transactions, budgets }) {
                 )}
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {topMerchants.length > 0 && (
+        <div className="card">
+          <h3>Top Merchants — {currentMonthLabel}</h3>
+          <div className="merchant-list">
+            {topMerchants.map(({ name, amount, count }, i) => {
+              const pct = totalSpendThisMonth > 0 ? (amount / totalSpendThisMonth) * 100 : 0
+              return (
+                <div key={name} className="merchant-item">
+                  <div className="merchant-rank">{i + 1}</div>
+                  <div className="merchant-info">
+                    <div className="merchant-header">
+                      <span className="merchant-name" title={name}>{name}</span>
+                      <span className="merchant-amount">${amount.toFixed(2)}</span>
+                    </div>
+                    <div className="merchant-bar-bg">
+                      <div className="merchant-bar-fill" style={{ width: `${pct}%` }} />
+                    </div>
+                    <div className="merchant-sub">{count} transaction{count !== 1 ? 's' : ''} · {pct.toFixed(1)}% of spending</div>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </div>
       )}

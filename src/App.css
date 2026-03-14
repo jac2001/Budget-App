@@ -247,6 +247,40 @@ body {
 }
 .month-picker:focus { border-color: #6366f1; }
 
+/* Top merchants */
+.merchant-list { display: flex; flex-direction: column; gap: 12px; }
+
+.merchant-item { display: flex; align-items: flex-start; gap: 12px; }
+
+.merchant-rank {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.merchant-info { flex: 1; min-width: 0; }
+
+.merchant-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; gap: 8px; }
+
+.merchant-name { font-size: 0.875rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.merchant-amount { font-size: 0.875rem; font-weight: 700; color: #dc2626; white-space: nowrap; }
+
+.merchant-bar-bg { height: 6px; background: #f1f5f9; border-radius: 99px; overflow: hidden; margin-bottom: 3px; }
+
+.merchant-bar-fill { height: 100%; background: #6366f1; border-radius: 99px; transition: width 0.3s; }
+
+.merchant-sub { font-size: 0.75rem; color: #94a3b8; }
+
 .summary-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
