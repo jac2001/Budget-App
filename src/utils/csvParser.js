@@ -105,6 +105,17 @@ export function guessCategory(description) {
   return 'Other'
 }
 
+// Deterministic ID so the same transaction always hashes to the same ID,
+// preventing duplicates when the same CSV is imported more than once.
+function makeId(date, amount, description, source) {
+  const raw = `${date}|${amount}|${(description || '').trim().toLowerCase()}|${source}`
+  let hash = 0
+  for (let i = 0; i < raw.length; i++) {
+    hash = Math.imul(31, hash) + raw.charCodeAt(i) | 0
+  }
+  return `txn-${Math.abs(hash).toString(36)}`
+}
+
 function parseAmount(raw) {
   if (raw === null || raw === undefined) return null
   const cleaned = String(raw).replace(/[$,\s]/g, '').replace(/[()]/g, m => m === '(' ? '-' : '')
@@ -164,9 +175,10 @@ function parseVenmo(rows, rawHeaders) {
       const from = (r[fromCol] || '').trim()
       const to = (r[toCol] || '').trim()
       const description = note || `${from} → ${to}`
+      const date = normalizeDate(r[dateCol])
       return {
-        id: `venmo-${i}-${Date.now()}`,
-        date: normalizeDate(r[dateCol]),
+        id: makeId(date, amount, description, 'Venmo'),
+        date,
         description,
         amount,
         category: guessCategory(description),
@@ -217,11 +229,13 @@ function parseChase(rows, rawHeaders) {
       const cardNo = cardCol && r[cardCol] ? ` ···${String(r[cardCol]).slice(-4)}` : ''
       const acctNo = accountCol && r[accountCol] ? ` ···${String(r[accountCol]).slice(-4)}` : ''
       const source = cardNo ? `Credit Card${cardNo}` : acctNo ? `Checking${acctNo}` : 'Bank'
+      const date = normalizeDate(r[dateCol])
+      const amount = resolveAmount(r)
       return {
-        id: `chase-${i}-${Date.now()}`,
-        date: normalizeDate(r[dateCol]),
+        id: makeId(date, amount, description, source),
+        date,
         description,
-        amount: resolveAmount(r),
+        amount,
         category,
         bankCategory,
         source,
@@ -249,11 +263,13 @@ function parseGeneric(rows, rawHeaders) {
     .filter(r => r[dateCol])
     .map((r, i) => {
       const description = r[descCol] || ''
+      const date = normalizeDate(r[dateCol])
+      const amount = parseAmount(r[amountCol])
       return {
-        id: `txn-${i}-${Date.now()}`,
-        date: normalizeDate(r[dateCol]),
+        id: makeId(date, amount, description, 'Bank'),
+        date,
         description,
-        amount: parseAmount(r[amountCol]),
+        amount,
         category: guessCategory(description),
         source: 'Bank',
       }

@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import {
   PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer,
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -20,9 +20,27 @@ function formatMonth(key) {
   return new Date(year, month - 1).toLocaleString('default', { month: 'short', year: '2-digit' })
 }
 
+function formatMonthLong(key) {
+  const [year, month] = key.split('-')
+  return new Date(year, month - 1).toLocaleString('default', { month: 'long', year: 'numeric' })
+}
+
 export default function Dashboard({ transactions, budgets }) {
   const now = new Date()
-  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  const todayMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+
+  const availableMonths = useMemo(() => {
+    const keys = new Set(transactions.map(t => getMonthKey(t.date)).filter(Boolean))
+    return [...keys].sort().reverse()
+  }, [transactions])
+
+  const [selectedMonth, setSelectedMonth] = useState(() => todayMonthKey)
+
+  // If selected month has no data but today's month does, keep today as default.
+  // Revert to first available month if today has no data.
+  const currentMonthKey = availableMonths.includes(selectedMonth)
+    ? selectedMonth
+    : availableMonths[0] || todayMonthKey
 
   const currentMonthTxns = useMemo(() =>
     transactions.filter(t => getMonthKey(t.date) === currentMonthKey && t.amount < 0 && !t.workExpense),
@@ -43,6 +61,8 @@ export default function Dashboard({ transactions, budgets }) {
   const totalIncomeThisMonth = transactions
     .filter(t => getMonthKey(t.date) === currentMonthKey && t.category === 'Income')
     .reduce((s, t) => s + t.amount, 0)
+
+  const currentMonthLabel = formatMonthLong(currentMonthKey)
 
   // Last 6 months bar chart
   const monthlyData = useMemo(() => {
@@ -82,10 +102,19 @@ export default function Dashboard({ transactions, budgets }) {
     )
   }
 
-  const currentMonthLabel = now.toLocaleString('default', { month: 'long', year: 'numeric' })
-
   return (
     <div className="dashboard">
+      <div className="dashboard-header">
+        <select
+          value={currentMonthKey}
+          onChange={e => setSelectedMonth(e.target.value)}
+          className="month-picker"
+        >
+          {availableMonths.map(m => (
+            <option key={m} value={m}>{formatMonthLong(m)}</option>
+          ))}
+        </select>
+      </div>
       <div className="summary-cards">
         <div className="summary-card spend">
           <div className="summary-label">Spent this month</div>

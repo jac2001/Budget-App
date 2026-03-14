@@ -233,6 +233,20 @@ body {
 /* Dashboard */
 .dashboard { display: flex; flex-direction: column; gap: 0; }
 
+.dashboard-header { margin-bottom: 20px; }
+.month-picker {
+  padding: 8px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #0f172a;
+  background: white;
+  cursor: pointer;
+  outline: none;
+}
+.month-picker:focus { border-color: #6366f1; }
+
 .summary-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
